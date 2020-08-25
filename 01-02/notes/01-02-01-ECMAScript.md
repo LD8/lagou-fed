@@ -451,8 +451,218 @@ console.log(JSON.stringify(obj));
 
 未来会有`BigInt`数据类型来储存更长的数字。目前处在`stage-4`阶段。
 
-## ----- ES6 Map -----
+## ----- ES6 循环 -----
 
-## ----- ES6 Map -----
+`for`：遍历普通数组  
+`for...in`：遍历键值对  
+`Array.forEach`：遍历数组  
+全新的：
 
-## ----- ES6 Map -----
+### `for...of`：遍历所有数据的统一方式
+
+-> 可以用`break`来终止遍历循环
+
+-> 可用来直接遍历数组、Set、Map 数据类型
+
+-> 在遍历对象时需自己添加可迭代（Iterable）接口：
+
+## ----- ES6 迭代器 `iterator` -----
+
+在浏览器 console.log 以下实例会发现  
+`Array`, `Set`, `Map`  
+它们都有一个共同的方法叫`Symbol(Symbol.iterator): ƒ values()`
+
+所有可迭代对象(可以被遍历、可以使用`for...of`的对象)中必须有一个“可迭代接口”，即：迭代器
+
+```js
+const arr = ["foo", "bar", "baz"];
+const iterator = arr[Symbol.iterator](); // 一个迭代器对象：一个带有next方法的对象
+iterator.next(); // {value: "foo", done: false}
+iterator.next(); // {value: "bar", done: false}
+iterator.next(); // {value: "baz", done: false}
+iterator.next(); // {value: undefined, done: true}
+```
+
+### 实现可迭代接口
+
+```js
+// 可迭代对象
+const obj = {
+  store: ["foo", "bar", "baz"],
+  store2: ["some", "thing", "else"],
+
+  // 外部使用时不需要知道内部的数据结构，只需使用这个接口
+  each: function (callback) {
+    const all = [...store, ...store2];
+    for (const item of all) {
+      callback(item);
+    }
+  },
+  // 使用时：obj.each((i) => console.log(i))
+
+  // 可迭代接口：在语言层面实现迭代
+  [Symbol.iterator]: function () {
+    let index = 0;
+    // -- next中的this并不指向obj对象，所以要把this存在一个变量中给next调用
+    const self = this;
+    // 返回一个带有next方法的对象
+    return {
+      // 返回一个迭代结果
+      next: function () {
+        const result = {
+          value: self.store[index],
+          done: index >= self.store.length,
+        };
+        index++;
+        return result;
+      },
+    };
+  },
+};
+
+for (const item of obj) {
+  console.log(item);
+}
+```
+
+-> **以上事例中`each`方法只适用于本对象，而“迭代接口”是 ES6 在语言层面上解决对象迭代的方法，我们只需编写方法，明确迭代逻辑即可**
+
+## ----- ES6 生成器 `generator` -----
+
+在复杂的异步代码中减少嵌套，提高代码可读性，生成器特性：
+
+- 定义语法：需要用星号定义对象，用`yield`返回值（与`return`的功能相似）
+- 执行语法：`const generator = 生成器函数()`，需`generator.next()`这样执行获得下一个`yield`的结果，并暂停，知道下一个`next()`被运行，直到这个函数完全结束（当`{value: undefined, done: true}`时）
+
+```js
+function* foo() {
+  console.log("don");
+  yield 1;
+  console.log("lee");
+  yield 2;
+}
+
+const result = foo();
+console.log(result.next()); // don { value: 1, done: false }
+console.log(result.next()); // lee { value: 1, done: false }
+console.log(result.next()); //     { value: undefined, done: true }
+// 迭代结果为一个对象
+```
+
+### 生成器案例：发号器
+
+```js
+function* createIdMaker() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const idMaker = createIdMaker();
+console.log(idMaker.next()); // 1
+console.log(idMaker.next()); // 2
+console.log(idMaker.next()); // 3
+```
+
+### 生成器案例：用生成器实现普通对象的迭代
+
+```js
+const todos = {
+  life: ["eat", "drink", "sleep"],
+  learn: ["coding", "cooking", "swimming"],
+  work: ["programming", "watering"],
+
+  // 使用迭代器模式实现遍历：
+  [Symbol.iterator]: function () {
+    const all = [...this.life, ...this.learn, ...this.work];
+    let index = 0;
+    return {
+      next: function () {
+        return {
+          value: all[index],
+          done: index++ >= all.length,
+        };
+      },
+    };
+  },
+
+  // 使用生成器模式：
+  [Symbol.iterator]: function* () {
+    const all = [...this.life, ...this.learn, ...this.work];
+    for (const item of all) {
+      yield item;
+    }
+  },
+};
+console.log(Object.getOwnPropertyDescriptor(todos));
+for (const item of todos) {
+  console.log(item);
+}
+```
+
+## ----- ES2016 -----
+
+小版本发布，发布于 2016 年 6 月：
+
+- `Array.prototype.includes`，从此不用再使用`Array.indexof`：`includes`可以用来查找`NaN`
+- 指数运算符，从此可不使用`Math.pow(2, 10)`，在语言层面增加的运算符
+
+## ----- ES2017 -----
+
+ECMAScript 的第八个版本， 发布于 2017 年 6 月：
+
+- `Object.values`：value[]
+- `Object.entries`：键值对[]
+- `Object.getOwnPropertyDescriptors`：深度解析对象中每一个键的值
+
+  ```js
+  const p1 = {
+    fn: "don",
+    ln: "lee",
+    get fullname() {
+      return this.fn + " " + this.ln;
+    },
+  };
+  // 这种有getter，setter的对象，如果使用Object.assign({}, p1)则会复制`fullname`的返回值而不是函数本身
+
+  // 这时需要进行深度解析这个对象的键的值：
+  const descriptors = Object.getOwnPropertyDescriptors(p1);
+  console.log(descriptors);
+  // {
+  //   fn: {...},
+  //   ln: {...},
+  //   fullName: {
+  //     get: [Function: get fullName],
+  //     set: undefined,
+  //     ...
+  //   }
+  // }
+
+  // 然后再把这个解析结果赋值给新的对象
+  const p2 = Object.defineProperties({}, descriptors);
+  // 这个新的对象就可以正常使用getter和setter了，因为拷贝的是fullName这个function本身，而非它的结果
+  ```
+
+- `String.prototype.padStart`：参数1：设置字符串的总位数，参数2：不满足设置的位数时拿什么填充
+- `String.prototype.padEnd`：`padStart`填充在最前面，`padEnd`填充在最后面
+
+  ```js
+  const books = {
+    html: 5,
+    css: 12,
+    javascript: 128,
+  };
+  
+
+  for (const [name, count] of Object.entries(books)) {
+  console.log(`${name.padEnd(16, '-')}|${count.toString().padStart(3, '0')}`)
+  }
+
+  // html------------|005
+  // css-------------|012
+  // javascript------|128
+  ```
+
+- 在函数参数中添加尾逗号
+
