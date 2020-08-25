@@ -155,7 +155,7 @@ $ yarn tsc --locale zh-CN
 ### 小写的`object`类型
 
 ```ts
-const foo: object = function () {} // {} // []
+const foo: object = function () {}; // {} // []
 // object类型包括了非原始类型，而非仅仅指{}
 ```
 
@@ -163,19 +163,60 @@ const foo: object = function () {} // {} // []
 
 ```ts
 enum Something {
-    value1, // 默认值为1
-    value2, // 自动累加
-    value3, // 自动累加
+  value1, // 默认值为1
+  value2, // 自动累加
+  value3, // 自动累加
 }
 // 此时编译过后Something会成为双向键值对对象
 
 const enum SomethingElse {
-    value1,
-    value2,
-    value3,
+  value1,
+  value2,
+  value3,
 }
 // 此时编译过后，调用这个值的地方会被直接替换成值，SomethingElse不会被编译成双向键值对对象
 ```
 
+### 抽象类
 
+形容比较抽象的事物，是专门被其他类继承以后形成更具象的类而存在的。
 
+如：
+
+```js
+abstract class Animal {
+    eat (food: string):void {
+        console.log(`Eating ${food}`)
+    }
+    // 抽象方法：使子类必须创建符合规范的方法
+    abstract run (distance: number): void
+}
+// Animal抽象类无法使用new来创建实例对象
+// Dog这个子类可以
+class Dog extends Animal {
+    run(distance: number): void {
+        console.log(`Ran ${distance} yards`)
+    }
+}
+
+const jack = new Dog()
+jack.eat('grass')
+jack.run(100)
+```
+
+### 泛型
+
+为了复用代码，使定义的接口（Interface/Type）适用度更广。有些参数无法在定义时确认类型，用泛型代替后，在使用函数时定义、明确泛型。
+
+```js
+// 注意定义泛型的位置
+// function createArrayInLength<T> (length: number, value: T): T[] {
+const createArrayInLength = <T>(length: number, value: T): T[] {
+    const arr = Array<T>(length).fill(value);
+    return arr;
+}
+
+// 注意使用泛型的位置
+const array = createArrayInLength<number>(3, 100)
+const array = createArrayInLength<string>(3, 'something')
+```
