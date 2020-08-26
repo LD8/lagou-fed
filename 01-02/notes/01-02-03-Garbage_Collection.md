@@ -1,4 +1,4 @@
-# JavaScript Optimization
+# Memory & Garbage Collection
 
 ## 内存管理
 
