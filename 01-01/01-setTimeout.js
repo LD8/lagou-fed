@@ -1,6 +1,6 @@
 /**
  * 代码题一、将下面的异步代码使用Promise的方式改进
- */ 
+ */
 
 // setTimeout(() => {
 //   var a = "hello";
