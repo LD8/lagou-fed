@@ -161,4 +161,4 @@ console.log(num1); // num1 is not defined
 
 执行和遍历清除交替进行，使程序执行的停顿时间显得更短。
 
-## Performance工具
+## Performance 工具

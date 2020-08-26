@@ -307,7 +307,7 @@ joe.sayHello();
 
 ## ----- ES6 `Set` 数据结构 -----
 
-#### `Set`与`Array`类似，但`Set`是一个值不会重复的`Array`，并且有很多它自己的方法。
+### `Set`与`Array`类似，但`Set`是一个值不会重复的`Array`，并且有很多它自己的方法。
 
 ```js
 const s = new Set();
@@ -644,7 +644,7 @@ ECMAScript 的第八个版本， 发布于 2017 年 6 月：
   // 这个新的对象就可以正常使用getter和setter了，因为拷贝的是fullName这个function本身，而非它的结果
   ```
 
-- `String.prototype.padStart`：参数1：设置字符串的总位数，参数2：不满足设置的位数时拿什么填充
+- `String.prototype.padStart`：参数 1：设置字符串的总位数，参数 2：不满足设置的位数时拿什么填充
 - `String.prototype.padEnd`：`padStart`填充在最前面，`padEnd`填充在最后面
 
   ```js
@@ -653,10 +653,9 @@ ECMAScript 的第八个版本， 发布于 2017 年 6 月：
     css: 12,
     javascript: 128,
   };
-  
 
   for (const [name, count] of Object.entries(books)) {
-  console.log(`${name.padEnd(16, '-')}|${count.toString().padStart(3, '0')}`)
+    console.log(`${name.padEnd(16, "-")}|${count.toString().padStart(3, "0")}`);
   }
 
   // html------------|005
@@ -665,4 +664,3 @@ ECMAScript 的第八个版本， 发布于 2017 年 6 月：
   ```
 
 - 在函数参数中添加尾逗号
-
